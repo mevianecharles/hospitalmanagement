@@ -1,96 +1,20 @@
-trigger:
-  branches:
-    include:
-    - main
-    - dev
+# Stage 1 - Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-pr:
-  branches:
-    include:
-    - main
+COPY GestorPacientes/GestorPacientes.csproj ./GestorPacientes/
+COPY GestorPacientes.Core.Application/GestorPacientes.Core.Application.csproj ./GestorPacientes.Core.Application/
+COPY GestorPacientes.Core.Domain/GestorPacientes.Core.Domain.csproj ./GestorPacientes.Core.Domain/
+COPY GestorPacientes.Infrastructure.Persistence/GestorPacientes.Infrastructure.Persistence.csproj ./GestorPacientes.Infrastructure.Persistence/
 
-resources:
-- repo: self
+RUN dotnet restore "GestorPacientes/GestorPacientes.csproj"
 
-variables:
-  dockerRegistryServiceConnection: '1197439b-728b-4758-a54b-95d7768e16ea'
-  imageRepository: 'hospitalmanagement'
-  containerRegistry: 'hospitalmnmtacr-cucrb7avc6bgfpez.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-  tag: '$(Build.BuildId)'
+COPY . .
 
-pool:
-  vmImage: 'ubuntu-latest'
+RUN dotnet publish "GestorPacientes/GestorPacientes.csproj" -c Release -o /app/publish
 
-stages:
-
-#  Stage 1 - Always runs on dev AND main
-- stage: Build
-  displayName:  Build Docker Image
-  jobs:
-  - job: Build
-    displayName: Build
-    steps:
-    - task: Docker@2
-      displayName: Build image
-      inputs:
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(imageRepository)'
-        command: 'build'
-        Dockerfile: '$(dockerfilePath)'
-        tags: |
-          $(tag)
-          latest
-
-#  Stage 2 - Always runs on dev AND main
-- stage: CodeAnalysis
-  displayName:  Static Code Analysis
-  dependsOn: Build
-  condition: succeeded()
-  jobs:
-  - job: Analysis
-    displayName: SonarCloud Analysis
-    steps:
-
-    - task: SonarCloudPrepare@3
-      displayName: Prepare SonarCloud
-      inputs:
-        SonarCloud: 'SonarCloudConnection'
-        organization: 'magalimeviane'
-        scannerMode: 'dotnet'
-        projectKey: 'magalimeviane_Hospital-Management'
-        projectName: 'Hospital Management'
-
-    - task: DotNetCoreCLI@2
-      displayName: Build solution
-      inputs:
-        command: 'build'
-        projects: '**/*.csproj'
-        arguments: '--configuration Release'
-
-    - task: SonarCloudAnalyze@3
-      displayName: Run analysis
-
-    - task: SonarCloudPublish@3
-      displayName: Publish results
-      inputs:
-        pollingTimeoutSec: '300'
-
-#  Stage 3 - ONLY runs on main branch
-- stage: Push
-  displayName:  Push to ACR
-  dependsOn: CodeAnalysis
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - job: Push
-    displayName: Push image
-    steps:
-    - task: Docker@2
-      displayName: Push to ACR
-      inputs:
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(imageRepository)'
-        command: 'push'
-        tags: |
-          $(tag)
-          latest
+# Stage 2 - Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "GestorPacientes.dll"]
