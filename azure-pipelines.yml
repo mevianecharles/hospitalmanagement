@@ -24,7 +24,7 @@ pool:
 
 stages:
 
-# Stage 1 - Always runs on dev AND main
+#  Stage 1 - Always runs on dev AND main
 - stage: Build
   displayName:  Build Docker Image
   jobs:
@@ -42,7 +42,7 @@ stages:
           $(tag)
           latest
 
-# Stage 2 - Always runs on dev AND main
+#  Stage 2 - Always runs on dev AND main
 - stage: CodeAnalysis
   displayName:  Static Code Analysis
   dependsOn: Build
@@ -52,14 +52,7 @@ stages:
     displayName: SonarCloud Analysis
     steps:
 
-    - task: JavaToolInstaller@0
-      displayName: Install Java
-      inputs:
-        versionSpec: '17'
-        jdkArchitectureOption: 'x64'
-        jdkSourceOption: 'PreInstalled'
-
-    - task: SonarCloudPrepare@2
+    - task: SonarCloudPrepare@3
       displayName: Prepare SonarCloud
       inputs:
         SonarCloud: 'SonarCloudConnection'
@@ -75,15 +68,15 @@ stages:
         projects: '**/*.csproj'
         arguments: '--configuration Release'
 
-    - task: SonarCloudAnalyze@2
+    - task: SonarCloudAnalyze@3
       displayName: Run analysis
 
-    - task: SonarCloudPublish@2
+    - task: SonarCloudPublish@3
       displayName: Publish results
       inputs:
         pollingTimeoutSec: '300'
 
-# Stage 3 - ONLY runs on main branch
+#  Stage 3 - ONLY runs on main branch
 - stage: Push
   displayName:  Push to ACR
   dependsOn: CodeAnalysis
