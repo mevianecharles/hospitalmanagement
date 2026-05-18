@@ -24,11 +24,13 @@ pool:
 
 stages:
 
+#  Stage 1 - Build only on dev / BuildAndPush on main
 - stage: Build
   displayName:  Build Docker Image
   jobs:
-  - job: Build
-    displayName: Build
+  - job: BuildDev
+    displayName: Build only (dev)
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/dev')
     steps:
     - task: Docker@2
       displayName: Build image
@@ -41,6 +43,22 @@ stages:
           $(tag)
           latest
 
+  - job: BuildAndPushMain
+    displayName: Build and Push (main)
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    steps:
+    - task: Docker@2
+      displayName: Build and Push image
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        command: 'buildAndPush'
+        Dockerfile: '$(dockerfilePath)'
+        tags: |
+          $(tag)
+          latest
+
+#  Stage 2 - Always runs on dev AND main
 - stage: CodeAnalysis
   displayName:  Static Code Analysis
   dependsOn: Build
@@ -74,21 +92,3 @@ stages:
       continueOnError: true
       inputs:
         pollingTimeoutSec: '600'
-
-- stage: Push
-  displayName:  Push to ACR
-  dependsOn: CodeAnalysis
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - job: Push
-    displayName: Push image
-    steps:
-    - task: Docker@2
-      displayName: Push to ACR
-      inputs:
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(imageRepository)'
-        command: 'push'
-        tags: |
-          $(tag)
-          latest
