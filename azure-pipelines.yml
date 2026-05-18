@@ -24,7 +24,6 @@ pool:
 
 stages:
 
-#  Stage 1 - Always runs on dev AND main
 - stage: Build
   displayName:  Build Docker Image
   jobs:
@@ -42,7 +41,6 @@ stages:
           $(tag)
           latest
 
-#  Stage 2 - Always runs on dev AND main
 - stage: CodeAnalysis
   displayName:  Static Code Analysis
   dependsOn: Build
@@ -52,12 +50,12 @@ stages:
     displayName: SonarCloud Analysis
     steps:
 
-    - task: SonarCloudPrepare@3
+    - task: SonarCloudPrepare@4
       displayName: Prepare SonarCloud
       inputs:
         SonarCloud: 'SonarCloudConnection'
         organization: 'magalimeviane'
-        scannerMode: 'MSBuild'
+        scannerMode: 'dotnet'
         projectKey: 'magalimeviane_Hospital-Management'
         projectName: 'Hospital Management'
 
@@ -68,15 +66,14 @@ stages:
         projects: '**/*.csproj'
         arguments: '--configuration Release'
 
-    - task: SonarCloudAnalyze@3
+    - task: SonarCloudAnalyze@4
       displayName: Run analysis
 
-    - task: SonarCloudPublish@3
+    - task: SonarCloudPublish@4
       displayName: Publish results
       inputs:
         pollingTimeoutSec: '300'
 
-#  Stage 3 - ONLY runs on main branch
 - stage: Push
   displayName:  Push to ACR
   dependsOn: CodeAnalysis
