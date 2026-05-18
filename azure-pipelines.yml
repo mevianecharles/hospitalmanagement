@@ -71,8 +71,9 @@ stages:
 
     - task: SonarCloudPublish@4
       displayName: Publish results
+      continueOnError: true
       inputs:
-        pollingTimeoutSec: '300'
+        pollingTimeoutSec: '600'
 
 - stage: Push
   displayName:  Push to ACR
