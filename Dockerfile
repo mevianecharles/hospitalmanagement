@@ -4,7 +4,7 @@ WORKDIR /src
 
 # Copy project files with EXACT folder names
 COPY GestorPacientes/GestorPacientes.csproj ./GestorPacientes/
-COPY GestorPacientes.Core.Applica/GestorPacientes.Core.Application.csproj ./GestorPacientes.Core.Applica/
+COPY GestorPacientes.Core.Application/GestorPacientes.Core.Application.csproj ./GestorPacientes.Core.Application/
 COPY GestorPacientes.Core.Domain/GestorPacientes.Core.Domain.csproj ./GestorPacientes.Core.Domain/
 COPY GestorPacientes.Infrastructure.Persistence/GestorPacientes.Infrastructure.Persistence.csproj ./GestorPacientes.Infrastructure.Persistence/
 
