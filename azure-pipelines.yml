@@ -25,7 +25,7 @@ pool:
 stages:
 
 - stage: Build
-  displayName: 🔨 Build Docker Image
+  displayName:  Build Docker Image
   jobs:
   - job: Build
     displayName: Build
@@ -42,7 +42,7 @@ stages:
           latest
 
 - stage: CodeAnalysis
-  displayName: 🔍 Static Code Analysis
+  displayName:  Static Code Analysis
   dependsOn: Build
   condition: succeeded()
   jobs:
@@ -75,7 +75,7 @@ stages:
         pollingTimeoutSec: '300'
 
 - stage: Push
-  displayName: 🚀 Push to ACR
+  displayName:  Push to ACR
   dependsOn: CodeAnalysis
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   jobs:
