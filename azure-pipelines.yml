@@ -59,7 +59,7 @@ stages:
         jdkArchitectureOption: 'x64'
         jdkSourceOption: 'PreInstalled'
 
-    - task: SonarCloudPrepare@1
+    - task: SonarCloudPrepare@2
       displayName: Prepare SonarCloud
       inputs:
         SonarCloud: 'SonarCloudConnection'
@@ -75,10 +75,10 @@ stages:
         projects: '**/*.csproj'
         arguments: '--configuration Release'
 
-    - task: SonarCloudAnalyze@1
+    - task: SonarCloudAnalyze@2
       displayName: Run analysis
 
-    - task: SonarCloudPublish@1
+    - task: SonarCloudPublish@2
       displayName: Publish results
       inputs:
         pollingTimeoutSec: '300'
