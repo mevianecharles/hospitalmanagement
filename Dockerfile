@@ -2,11 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy each project file
+# Copy project files with EXACT folder names
 COPY GestorPacientes/GestorPacientes.csproj ./GestorPacientes/
-COPY GestorPacientes.Core.Applicat/GestorPacientes.Core.Applicat.csproj ./GestorPacientes.Core.Applicat/
+COPY GestorPacientes.Core.Applica/GestorPacientes.Core.Application.csproj ./GestorPacientes.Core.Applica/
 COPY GestorPacientes.Core.Domain/GestorPacientes.Core.Domain.csproj ./GestorPacientes.Core.Domain/
-COPY GestorPacientes.Infrastructure/GestorPacientes.Infrastructure.csproj ./GestorPacientes.Infrastructure/
+COPY GestorPacientes.Infrastructure.Persistence/GestorPacientes.Infrastructure.Persistence.csproj ./GestorPacientes.Infrastructure.Persistence/
 
 # Restore dependencies
 RUN dotnet restore "GestorPacientes/GestorPacientes.csproj"
@@ -14,7 +14,7 @@ RUN dotnet restore "GestorPacientes/GestorPacientes.csproj"
 # Copy everything else
 COPY . .
 
-# Publish the MVC web project
+# Publish
 RUN dotnet publish "GestorPacientes/GestorPacientes.csproj" -c Release -o /app/publish
 
 # Stage 2 - Runtime
