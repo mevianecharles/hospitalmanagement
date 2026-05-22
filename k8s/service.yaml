@@ -9,4 +9,4 @@ spec:
   ports:
   - port: 7005
     targetPort: 7005
-  type: ClusterIP
+  type: LoadBalancer
