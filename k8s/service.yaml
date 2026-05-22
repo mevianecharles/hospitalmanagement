@@ -7,6 +7,6 @@ spec:
   selector:
     app: hospital-app
   ports:
-  - port: 80
-    targetPort: 80
+  - port: 7005
+    targetPort: 7005
   type: ClusterIP
