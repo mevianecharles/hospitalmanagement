@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: hospital-app
-        image: nginx:latest
+        image: hospitalmnmtacr-cucrb7avc6bgfpez.azurecr.io/hospitalmanagement:latest
         ports:
-        - containerPort: 80
+        - containerPort: 7005
