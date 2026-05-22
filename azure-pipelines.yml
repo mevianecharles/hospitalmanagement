@@ -16,7 +16,7 @@ variables:
   dockerRegistryServiceConnection: '1197439b-728b-4758-a54b-95d7768e16ea'
   imageRepository: 'hospitalmanagement'
   containerRegistry: 'hospitalmnmtacr-cucrb7avc6bgfpez.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/GestorPacientes/Dockerfile'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
 
 pool:
