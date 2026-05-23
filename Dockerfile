@@ -12,5 +12,7 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 EXPOSE 7005
+ENV ASPNETCORE_URLS=http://+:7005
+ENV ASPNETCORE_ENVIRONMENT=Production
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "GestorPacientes.dll"]
