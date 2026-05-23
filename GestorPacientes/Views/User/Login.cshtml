@@ -5,28 +5,45 @@
     ViewData["Title"] = "Login";
 }
 
-<div class="container mt-5 w-25">
-    <h1>Iniciar Sesion</h1>
-    <div class="card card-box-shadow">
-        <div class="card-body">
-        <div asp-validation-summary="All" class="text-danger"></div>
-            <form method="post" asp-controller="User" asp-action="Login">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-8 col-md-6 col-lg-4">
 
-                <div class="mb-3">
-                    <label asp-for="Username" class="form-label"></label>
-                    <input type="text" asp-for="Username" class="form-control" />
-                </div>
-                
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" class="form-control" />
-                </div>
+            <div class="text-center mb-4">
+                <h1 class="fw-bold text-primary">🏥 Hospital Management</h1>
+                <p class="text-muted">Welcome! Please sign in to continue.</p>
+            </div>
 
-                <div class="text-center pt-3">
-                    <button class="btn btn-primary w-50">Iniciar sesión</button>
-                    <a class="btn btn-success" asp-action="Register">Registrarse</a>
+            <div class="card shadow">
+                <div class="card-body p-4">
+
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <form method="post" asp-controller="User" asp-action="Login">
+
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label fw-semibold">Username</label>
+                            <input type="text" asp-for="Username" class="form-control" placeholder="Enter your username" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label fw-semibold">Password</label>
+                            <input asp-for="Password" class="form-control" placeholder="Enter your password" />
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Sign In</button>
+                            <a class="btn btn-outline-success" asp-action="Register">Create Account</a>
+                        </div>
+
+                    </form>
                 </div>
-            </form>
+            </div>
+
+            <p class="text-center text-muted mt-3">
+                <small>© 2024 - Hospital Management System</small>
+            </p>
+
         </div>
     </div>
 </div>
