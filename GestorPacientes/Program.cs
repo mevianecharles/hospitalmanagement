@@ -2,7 +2,7 @@ using GestorPacientes.Infrastructure.Persistence;
 using GestorPacientes.Infrastructure.Persistence.Contexts;
 using GestorPacientes.Core.Application;
 using GestorPacientes.Middlewares;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,7 +35,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
+        logger.LogError(ex, "Migration failed.");
     }
 }
 
