@@ -18,3 +18,11 @@ spec:
         image: hospitalmnmtacr-cucrb7avc6bgfpez.azurecr.io/hospitalmanagement:latest
         ports:
         - containerPort: 7005
+        env:
+        - name: ASPNETCORE_URLS
+          value: "http://+:7005"
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: hospital-db-secret
+              key: connectionstring
