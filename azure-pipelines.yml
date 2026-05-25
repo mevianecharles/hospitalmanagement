@@ -24,9 +24,9 @@ pool:
 
 stages:
 
-# Stage 1 - Build
+#  Stage 1 - Build only on dev / BuildAndPush on main
 - stage: Build
-  displayName: Build Docker Image
+  displayName:  Build Docker Image
   jobs:
   - job: BuildDev
     displayName: Build only (dev)
@@ -58,15 +58,16 @@ stages:
           $(tag)
           latest
 
-# Stage 2 - Static Code Analysis
+#  Stage 2 - Always runs on dev AND main
 - stage: CodeAnalysis
-  displayName: Static Code Analysis
+  displayName:  Static Code Analysis
   dependsOn: Build
   condition: succeeded()
   jobs:
   - job: Analysis
     displayName: SonarCloud Analysis
     steps:
+
     - task: SonarCloudPrepare@4
       displayName: Prepare SonarCloud
       inputs:
@@ -91,85 +92,3 @@ stages:
       continueOnError: true
       inputs:
         pollingTimeoutSec: '600'
-
-# Stage 3 - Manifest Integrity Check
-- stage: ManifestIntegrityCheck
-  displayName: Manifest Integrity Check
-  dependsOn: CodeAnalysis
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - job: VerifyManifests
-    displayName: Verify Manifest Integrity
-    steps:
-    - script: |
-        echo "================================================"
-        echo "Verifying Kubernetes Manifest Integrity..."
-        echo "================================================"
-        echo "Generating SHA256 checksums..."
-        sha256sum k8s/deployment.yml > /tmp/baseline.sha256
-        sha256sum k8s/service.yaml >> /tmp/baseline.sha256
-        sha256sum k8s/sqlserver.yaml >> /tmp/baseline.sha256
-        echo "Verifying checksums..."
-        sha256sum -c /tmp/baseline.sha256
-        if [ $? -eq 0 ]; then
-          echo "All manifests integrity verified! "
-        else
-          echo "TAMPERING DETECTED! Stopping pipeline! "
-          exit 1
-        fi
-      displayName: 'SHA256 Checksum Verification'
-
-    - script: |
-        echo "Validating YAML syntax..."
-        python3 -c "
-        import yaml, sys
-        files = ['k8s/deployment.yml', 'k8s/service.yaml', 'k8s/sqlserver.yaml']
-        for f in files:
-            try:
-                yaml.safe_load(open(f))
-                print(f'OK: {f} - Valid YAML')
-            except Exception as e:
-                print(f'ERROR: {f} - Invalid: {e}')
-                sys.exit(1)
-        print('All manifests are valid!')
-        "
-      displayName: 'Validate YAML Syntax'
-
-    - script: |
-        echo "Checking security issues in manifests..."
-        if grep -q "privileged: true" k8s/deployment.yml; then
-          echo "ERROR: Privileged container found! "
-          exit 1
-        else
-          echo "OK: No privileged containers found "
-        fi
-        if grep -q "limits:" k8s/deployment.yml; then
-          echo "OK: Resource limits configured "
-        else
-          echo "WARNING: No resource limits set "
-        fi
-        echo "Security checks completed! "
-      displayName: 'Security Policy Check'
-
-# Stage 4 - Deploy to AKS
-- stage: Deploy
-  displayName: Deploy to AKS
-  dependsOn: ManifestIntegrityCheck
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - job: DeployToAKS
-    displayName: Deploy to hms-prod-cluster
-    steps:
-    - task: KubernetesManifest@1
-      displayName: Deploy to Kubernetes
-      inputs:
-        action: 'deploy'
-        connectionType: 'azureResourceManager'
-        azureSubscriptionConnection: 'aks-service-connection'
-        azureResourceGroup: 'HospitalManagement-RG'
-        kubernetesCluster: 'hms-prod-cluster'
-        namespace: 'default'
-        manifests: |
-          $(Build.SourcesDirectory)/k8s/deployment.yml
-          $(Build.SourcesDirectory)/k8s/service.yaml
-        containers: '$(containerRegistry)/$(imageRepository):$(tag)'
