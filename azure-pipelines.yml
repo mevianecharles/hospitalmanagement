@@ -13,9 +13,9 @@ resources:
 - repo: self
 
 variables:
-  dockerRegistryServiceConnection: '1197439b-728b-4758-a54b-95d7768e16ea'
+  dockerRegistryServiceConnection: '<YOUR-SERVICE-CONNECTION>'
   imageRepository: 'hospitalmanagement'
-  containerRegistry: 'hospitalmnmtacr-cucrb7avc6bgfpez.azurecr.io'
+  containerRegistry: '<YOUR-ACR-NAME>.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
 
@@ -24,9 +24,9 @@ pool:
 
 stages:
 
-#  Stage 1 - Build only on dev / BuildAndPush on main
+# Stage 1 - Build only on dev / BuildAndPush on main
 - stage: Build
-  displayName:  Build Docker Image
+  displayName: Build Docker Image
   jobs:
   - job: BuildDev
     displayName: Build only (dev)
@@ -58,9 +58,9 @@ stages:
           $(tag)
           latest
 
-#  Stage 2 - Always runs on dev AND main
+# Stage 2 - Always runs on dev AND main
 - stage: CodeAnalysis
-  displayName:  Static Code Analysis
+  displayName: Static Code Analysis
   dependsOn: Build
   condition: succeeded()
   jobs:
@@ -71,10 +71,10 @@ stages:
     - task: SonarCloudPrepare@4
       displayName: Prepare SonarCloud
       inputs:
-        SonarCloud: 'SonarCloudConnection'
-        organization: 'magalimeviane'
+        SonarCloud: '<YOUR-SONARCLOUD-SERVICE-CONNECTION>'
+        organization: '<YOUR-SONARCLOUD-ORGANIZATION>'
         scannerMode: 'dotnet'
-        projectKey: 'magalimeviane_Hospital-Management'
+        projectKey: '<YOUR-PROJECT-KEY>'
         projectName: 'Hospital Management'
 
     - task: DotNetCoreCLI@2
